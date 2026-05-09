@@ -1,0 +1,25 @@
+{
+  "module_path": "sdd-api",
+  "siblings": [{"name":"sdd-ui","kind":"angular"}],
+  "java_version": "25",
+  "spring_boot_version": "4.0.6",
+  "db_engines": ["mysql-connector-j"],
+  "migration": "none",
+  "test": {
+    "junit5": true,
+    "testcontainers": false,
+    "archunit": false
+  },
+  "openapi": {
+    "springdoc": false,
+    "spec_file": false
+  },
+  "harness_layers": {
+    "spotless": false,
+    "checkstyle": false,
+    "spotbugs": false,
+    "jacoco": false,
+    "pit": false,
+    "dependency_check": false
+  }
+}
