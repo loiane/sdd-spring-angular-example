@@ -1,0 +1,75 @@
+{
+  "feature_id": "2026-05-09-create-new-customer",
+  "active_task": null,
+  "tasks": {
+    "T-001": {
+      "phase": "pending",
+      "acs_covered": ["AC-008", "AC-011", "AC-012"],
+      "files_in_scope": [
+        "sdd-api/src/main/resources/db/migration/V1__create_customer_table.sql",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/Customer.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerRepository.java",
+        "sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerRepositoryTest.java",
+        "sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerRepositoryIT.java"
+      ],
+      "depends_on": []
+    },
+    "T-002": {
+      "phase": "pending",
+      "acs_covered": ["AC-008", "AC-010", "AC-011", "AC-012"],
+      "files_in_scope": [
+        "sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerRequest.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerResponse.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerService.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerServiceImpl.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/DuplicateEmailException.java",
+        "sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerServiceImplTest.java"
+      ],
+      "depends_on": ["T-001"]
+    },
+    "T-003": {
+      "phase": "pending",
+      "acs_covered": ["AC-008", "AC-010", "AC-011", "AC-012", "AC-013"],
+      "files_in_scope": [
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerController.java",
+        "sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerExceptionHandler.java",
+        "sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerControllerTest.java",
+        "sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerControllerIT.java"
+      ],
+      "depends_on": ["T-002"]
+    },
+    "T-004": {
+      "phase": "pending",
+      "acs_covered": ["AC-008", "AC-010", "AC-011", "AC-012", "AC-013"],
+      "files_in_scope": [
+        "sdd-ui/src/app/customer/customer.model.ts",
+        "sdd-ui/src/app/customer/customer.service.ts",
+        "sdd-ui/src/app/customer/customer.service.spec.ts"
+      ],
+      "depends_on": []
+    },
+    "T-005": {
+      "phase": "pending",
+      "acs_covered": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006", "AC-007"],
+      "files_in_scope": [
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.ts",
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.html",
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.scss",
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.spec.ts",
+        "sdd-ui/src/app/customer/customer.routes.ts",
+        "sdd-ui/src/app/app.routes.ts"
+      ],
+      "depends_on": ["T-004"]
+    },
+    "T-006": {
+      "phase": "pending",
+      "acs_covered": ["AC-008", "AC-009", "AC-010", "AC-011", "AC-012", "AC-013"],
+      "files_in_scope": [
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.ts",
+        "sdd-ui/src/app/customer/customer-create/customer-create.component.spec.ts",
+        "sdd-ui/src/app/app.config.ts"
+      ],
+      "depends_on": ["T-005"]
+    }
+  }
+}
