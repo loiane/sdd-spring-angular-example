@@ -1,0 +1,56 @@
+{
+  "captured_at": "2026-05-09T22:00:02Z",
+  "git_sha": "ab3f8dc",
+  "stack": {
+    "module_path": "sdd-api",
+    "siblings": [
+      {
+        "name": "sdd-ui",
+        "kind": "angular"
+      }
+    ],
+    "java_version": "25",
+    "spring_boot_version": "4.0.6",
+    "db_engines": [
+      "mysql-connector-j"
+    ],
+    "migration": "flyway",
+    "test": {
+      "junit5": true,
+      "testcontainers": false,
+      "archunit": false
+    },
+    "openapi": {
+      "springdoc": false,
+      "spec_file": false
+    },
+    "harness_layers": {
+      "spotless": true,
+      "checkstyle": true,
+      "spotbugs": true,
+      "jacoco": true,
+      "pit": true,
+      "dependency_check": true
+    }
+  },
+  "gates": {
+    "unit": {
+      "status": "pass",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "it": {
+      "status": "skipped"
+    },
+    "coverage": {
+      "status": "fail",
+      "line": 0.3333,
+      "branch": 0.0000
+    },
+    "mutation": {
+      "status": "skipped"
+    }
+  }
+}
