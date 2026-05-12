@@ -34,6 +34,12 @@ Make failing frontend tests pass with minimal UI code, then refactor and simplif
 - **Extract repeated literals.** Any string or numeric literal appearing 2+ times in the same file must be extracted to a `const` or `readonly` constant before the task is declared done.
 - Never commit automatically. Before any `git commit`, ask the user for explicit permission for that specific commit. Permission is single-use and must be re-requested before every later commit.
 - **Stop at task boundary.** When the task is complete, stop. Do not auto-start the next task. Surface the commit reminder.
+- **File naming — no dot-type suffixes.** Never use `.model`, `.service`, or `.component` as dot-separated filename segments.
+  - Type/interface files: feature name only — `customer.ts` not `customer.model.ts`
+  - Services: hyphen suffix — `customer-service.ts` not `customer.service.ts`
+  - Components: feature name only — `customer-create.ts` not `customer-create.component.ts`
+  - Specs follow their source file: `customer-service.spec.ts`, `customer-create.spec.ts`
+- **Always use Angular CLI for generation.** Run `ng generate` (component, service, pipe, guard, etc.) inside the Angular project directory for every Angular artefact. Do not hand-create these files. After generation, rename the output file to match the naming convention above and update all imports.
 
 ## Handoff
 

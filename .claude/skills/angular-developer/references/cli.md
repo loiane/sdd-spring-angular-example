@@ -17,7 +17,19 @@ To update the application and its dependencies (which automatically runs code mi
 ng update @angular/core@<latest or specific version> @angular/cli<latest or specific version>
 ```
 
-## 2. Generating Code (`ng generate` or `ng g`)
+## 2. File Naming Conventions
+
+| Artefact type         | Convention                                              | Example                    |
+| :-------------------- | :------------------------------------------------------ | :------------------------- |
+| Type / interface file | Feature name only — **no `.model` suffix**              | `customer.ts`              |
+| Service               | Hyphen suffix: `-service.ts` — **never `.service.ts`**  | `customer-service.ts`      |
+| Service spec          | Matches service filename                                | `customer-service.spec.ts` |
+| Component             | Feature name only — **no `.component` suffix**          | `customer-create.ts`       |
+| Component spec        | Matches component filename                              | `customer-create.spec.ts`  |
+
+**Rule:** Always use `ng generate` to scaffold Angular artefacts. After generation, rename the output file to match the convention above and update all imports.
+
+## 3. Generating Code (`ng generate` or `ng g`)
 
 Always use the CLI to generate code to ensure it adheres to Angular standards and updates necessary configuration files automatically.
 

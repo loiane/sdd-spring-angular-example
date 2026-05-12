@@ -31,6 +31,12 @@ Write failing frontend tests first (red), then keep frontend test strategy and c
 - **No new npm dependencies** without explicit user confirmation.
 - **No tautological tests.** Do not write a test that only asserts a method returns a fixed value when no real consumer exists. Surface a `Q-NNN` design gap instead.
 - **Extract repeated literals.** Any string or numeric literal appearing 2+ times in the same test file must be extracted to a `const` constant.
+- **File naming — no dot-type suffixes.** Never use `.model`, `.service`, or `.component` as dot-separated filename segments.
+  - Type/interface files: feature name only — `customer.ts` not `customer.model.ts`
+  - Services: hyphen suffix — `customer-service.ts` not `customer.service.ts`
+  - Components: feature name only — `customer-create.ts` not `customer-create.component.ts`
+  - Specs follow their source file: `customer-service.spec.ts`, `customer-create.spec.ts`
+- **Always use Angular CLI for generation.** Run `ng generate` (component, service, pipe, guard, etc.) for any Angular artefact. Do not hand-create these files. After generation, rename to match the naming convention above and update all imports.
 
 ## HTTP API calls — `httpResource` patterns (Angular 19+)
 
