@@ -26,18 +26,17 @@ authoritative_references:
 
 ## Naming + traceability
 
-- **Every `@Test` and `@ParameterizedTest` method MUST carry `@DisplayName`.** No exceptions — write the display name *before* the test body so articulating it forces clarity about what the test verifies. (Project rule: `feedback_displayname_on_every_test.md`.)
-- The full annotation block on every test method is **all three** lines, in this order:
+- **Every `@Test` and `@ParameterizedTest` method MUST carry `@DisplayName`.** No exceptions — write the display name *before* the test body so articulating it forces clarity about what the test verifies.
+- The full annotation block on every test method is **exactly two** lines, in this order:
 
   ```java
   @Test
-  @Tag("AC-007")
-  @DisplayName("AC-007: given expired gift card, when applied, then returns 4xx")
+  @DisplayName("given expired gift card, when applied, then returns 4xx")
   void appliesExpiredGiftCard() { ... }
   ```
 
-- Display-name format for AC-traced tests: `"<T-ID>: given <precondition>, when <action>, then <outcome>"`. Short BDD-style sentence is acceptable for utility/regression tests not tied to a specific AC.
-- `@Tag("AC-NNN")` makes the test machine-readable for the traceability matrix.
+- Display-name format: `"given <precondition>, when <action>, then <outcome>"` — pure Given/When/Then. No AC prefix in the display name.
+- Do **not** use `@Tag` — it is dropped from the convention. AC traceability is tracked at the task level in `04-tasks.md` and `.tdd-state.json`.
 - One AC per test method when feasible.
 - The simplify phase audits every newly-authored or modified test in the diff for `@DisplayName` — that's the safety net if the red phase missed it.
 
@@ -54,8 +53,7 @@ class GiftCardRepositoryTest {
     @Autowired GiftCardRepository repo;
 
     @Test
-    @DisplayName("AC-004: given a new gift card, when saved and reloaded, then balance is preserved")
-    @Tag("AC-004")
+    @DisplayName("given a new gift card, when saved and reloaded, then balance is preserved")
     void persistsBalance() {
         var saved = repo.save(GiftCard.with(BigDecimal.valueOf(100)));
         assertThat(repo.findById(saved.id()).orElseThrow().balance())
@@ -92,8 +90,7 @@ class CheckoutControllerTest {
     @MockitoBean CheckoutService service;
 
     @Test
-    @DisplayName("AC-003: given unknown order id, when GET /{id}, then returns 404")
-    @Tag("AC-003")
+    @DisplayName("given unknown order id, when GET /{id}, then returns 404")
     void unknownOrder() throws Exception {
         when(service.applyGiftCard(any(), any())).thenThrow(OrderNotFound.class);
         mvc.perform(post("/checkout/{id}/gift-card", "missing")

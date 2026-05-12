@@ -15,7 +15,7 @@ authoritative_references:
 For each `AC-NNN` from `01-spec.md`:
 
 - The list of `T-NNN` tasks that implement it (`04-tasks.md`).
-- The list of test methods that assert it (`@Tag("AC-NNN")` or `@DisplayName("AC-NNN: …")`).
+- The list of test methods that assert it (tests in the files listed under that task's `files_in_scope` in `.tdd-state.json`).
 - The list of production code symbols (FQ method names) touched by those tasks' diffs.
 - The list of harness gates that ran on those symbols.
 
@@ -34,15 +34,15 @@ For each production symbol changed in the diff:
 
 1. Greps `01-spec.md` for `**AC-NNN**` headers → AC list.
 2. Greps `04-tasks.md` for task entries with `**AC-IDs:**` → AC↔task mapping.
-3. Scans `src/test/java/**/*.java` for `@Tag("AC-NNN")` and `@DisplayName("AC-NNN: …")` → AC↔test mapping.
+3. For each task, maps the ACs from `acs_covered` in `.tdd-state.json` to the test files listed in that task's `files_in_scope` → AC↔test mapping.
 4. Reads `git diff --name-only origin/main...HEAD` → changed files; intersects with JaCoCo's per-method coverage data → covered/uncovered symbols.
 5. Reads `harness-summary.json` → gates that ran.
 6. Emits `07a-traceability.md`.
 
 ## Required checks (all must pass)
 
-- **No uncovered AC.** Every `AC-NNN` appears in ≥1 test's `@Tag` or `@DisplayName`.
-- **No orphan test.** Every test method tagged `AC-NNN` references a real AC.
+- **No uncovered AC.** Every `AC-NNN` from `01-spec.md` appears in ≥1 task's `acs_covered` in `.tdd-state.json`, and that task has ≥1 test file in `files_in_scope`.
+- **No orphan test.** Every test file listed in `files_in_scope` belongs to a task that covers ≥1 real AC.
 - **No orphan code.** Every changed production method has ≥1 covering test.
 - **No untraced task.** Every `T-NNN` marked `done` in `04-tasks.md` has a commit recorded.
 
@@ -73,22 +73,19 @@ _None._
 ✅ All ACs covered. No orphans.
 ```
 
-## Tagging convention (enforced)
+## Test naming convention (enforced)
 
 ```java
 @Test
-@DisplayName("AC-007: rejects expired gift card with 4xx")
-@Tag("AC-007")
+@DisplayName("given expired gift card, when applied, then returns 4xx")
 void rejectsExpired() { ... }
 ```
 
-Both `@DisplayName` and `@Tag` are written for redundancy — one is human-friendly, the other machine-friendly.
-
-A Checkstyle rule rejects test methods that have `@DisplayName` matching `^AC-\\d{3}:` without a matching `@Tag`.
+`@DisplayName` uses pure Given/When/Then — no AC prefix. Do **not** use `@Tag`. AC traceability flows through `04-tasks.md` (`AC-IDs`) and `.tdd-state.json` (`acs_covered` + `files_in_scope`), not through test annotations.
 
 ## Anti-patterns
 
 - One mega-test that asserts five ACs at once → split.
-- Tests that only tag the highest-numbered AC of a related group → tag every AC asserted.
-- "Tag and forget" — agent tags the test but the assertion doesn't actually exercise the AC.
-- Removing a tag to make traceability green.
+- Task `acs_covered` lists an AC but the actual test assertion doesn't exercise it → audit the assertion.
+- Using `@Tag` — it is dropped from the convention; remove any that appear.
+- Display names without Given/When/Then structure — they describe the method, not the behavior.

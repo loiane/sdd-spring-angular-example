@@ -31,7 +31,8 @@ A task is **done** only when ALL of the following are true.
 
 ## Traceability
 
-- [ ] Every new test references its AC via `@DisplayName("AC-NNN: …")` or `@Tag("AC-NNN")`.
+- [ ] Every new `@Test` / `@ParameterizedTest` carries `@DisplayName("given …, when …, then …")`. No `@Tag` annotations.
+- [ ] The task's `acs_covered` in `.tdd-state.json` matches the AC-IDs in `04-tasks.md`.
 - [ ] The task entry in `04-tasks.md` is marked `done` with the implementing commit SHA.
 
 ## Forbidden
