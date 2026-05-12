@@ -19,29 +19,30 @@ The feature is a full-stack vertical slice touching both `sdd-api` (Spring Boot 
 
 ## ADRs
 
-- ADR-001: Feature-scoped package structure (api / internal) — status: **accepted**
+- ADR-001: Feature-scoped package structure — status: **accepted** (updated: flat customer package, no api/internal split)
 - ADR-002: Email uniqueness enforcement strategy — status: **accepted**
 
 ## Spring Component Map
 
 > Feature package root: `com.loiane.sdd.customer`
+> All classes live directly in the feature package. Optional sub-packages (`repository`, `service`, `controller`, `dto`) may be added when the feature grows large enough to warrant splitting.
 
-| Feature    | Visibility | Component                                            | Responsibility                                                    |
-|------------|------------|------------------------------------------------------|-------------------------------------------------------------------|
-| `customer` | api        | `customer.api.CustomerService`                       | Published interface — declares `create(CustomerRequest)`          |
-| `customer` | api        | `customer.api.CustomerRequest`                       | Immutable record carrying validated field values from the caller  |
-| `customer` | api        | `customer.api.CustomerResponse`                      | Immutable record returned after a successful save                 |
-| `customer` | internal   | `customer.internal.Customer`                         | JPA entity; owns the database row                                 |
-| `customer` | internal   | `customer.internal.CustomerRepository`               | Spring Data `JpaRepository`; declares `existsByEmail`             |
-| `customer` | internal   | `customer.internal.CustomerServiceImpl`              | Business logic: email uniqueness check + delegate to repository   |
-| `customer` | internal   | `customer.internal.DuplicateEmailException`          | Domain exception thrown when the email already exists             |
-| `customer` | internal   | `customer.internal.CustomerController`               | `@RestController` — maps `POST /api/customers` to `CustomerService.create` |
-| `customer` | internal   | `customer.internal.CustomerExceptionHandler`         | `@RestControllerAdvice` — maps validation and domain exceptions to RFC 9457 `ProblemDetail` |
+| Feature    | Component                           | Responsibility                                                              |
+|------------|-------------------------------------|-----------------------------------------------------------------------------|
+| `customer` | `customer.CustomerService`          | Published interface — declares `create(CustomerRequest)`                    |
+| `customer` | `customer.CustomerRequest`          | Immutable record carrying validated field values from the caller            |
+| `customer` | `customer.CustomerResponse`         | Immutable record returned after a successful save                           |
+| `customer` | `customer.Customer`                 | JPA entity; owns the database row                                           |
+| `customer` | `customer.CustomerRepository`       | Spring Data `JpaRepository`; declares `existsByEmail`                       |
+| `customer` | `customer.CustomerServiceImpl`      | Business logic: email uniqueness check + delegate to repository             |
+| `customer` | `customer.DuplicateEmailException`  | Domain exception thrown when the email already exists                       |
+| `customer` | `customer.CustomerController`       | `@RestController` — maps `POST /api/customers` to `CustomerService.create`  |
+| `customer` | `customer.CustomerExceptionHandler` | `@RestControllerAdvice` — maps exceptions to RFC 9457 `ProblemDetail`       |
 
 ## Module Boundaries
 
-- `customer` — public API package: `com.loiane.sdd.customer.api`; depends on: nothing (no other features exist yet); published events: none.
-- ArchUnit rule to add (Phase 5): `noClasses().that().resideInAPackage("..internal..").should().beAccessedByClassesOutside(packageOf(Customer.class))` to enforce that `..internal..` classes are never imported by code outside the `customer` feature.
+- `customer` — package: `com.loiane.sdd.customer`; depends on: nothing (no other features exist yet); published events: none.
+- ArchUnit rule to add (Phase 5): no cycles between top-level feature packages (`noClasses().that().resideInAPackage("com.loiane.sdd.customer..").should().dependOnClassesThat().resideInAPackage("com.loiane.sdd.<other-feature>..")`).
 
 ## Entity Relationship Model
 
@@ -199,15 +200,15 @@ Applied on `CustomerRequest` record (server-side) and mirrored in Angular valida
 
 ```
 sdd-ui/src/app/customer/
-├── customer.model.ts                          # CustomerRequest, CustomerResponse, ApiError interfaces
-├── customer.service.ts                        # HttpClient POST /api/customers
-├── customer.service.spec.ts                   # HttpClientTestingModule unit tests
-├── customer.routes.ts                         # { path: 'new', component: CustomerCreateComponent }
+├── customer.ts                          # CustomerRequest, CustomerResponse, ApiError interfaces
+├── customer-service.ts                  # HttpClient POST /api/customers
+├── customer-service.spec.ts             # HttpClientTestingModule unit tests
+├── customer.routes.ts                   # { path: 'new', component: CustomerCreateComponent }
 └── customer-create/
-    ├── customer-create.component.ts           # ReactiveFormsModule form, validators, submit logic
-    ├── customer-create.component.html         # mat-form-field, mat-error, mat-snack-bar trigger
-    ├── customer-create.component.scss
-    └── customer-create.component.spec.ts      # TestBed + Vitest: form rendering, validation, HTTP
+    ├── customer-create.ts               # ReactiveFormsModule form, validators, submit logic
+    ├── customer-create.html             # mat-form-field, mat-error, mat-snack-bar trigger
+    ├── customer-create.scss
+    └── customer-create.spec.ts          # TestBed + Vitest: form rendering, validation, HTTP
 ```
 
 Route registration:

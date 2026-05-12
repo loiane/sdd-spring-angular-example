@@ -51,10 +51,10 @@ All 13 ACs covered. ✓
   - T-001-T2: `CustomerRepositoryIT` — `@SpringBootTest` + Failsafe — verifies Flyway migration runs cleanly and the table schema matches expectations (column presence, unique constraint name).
 - **Files in scope:**
   - `sdd-api/src/main/resources/db/migration/V1__create_customer_table.sql`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/Customer.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerRepository.java`
-  - `sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerRepositoryTest.java`
-  - `sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerRepositoryIT.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/Customer.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerRepository.java`
+  - `sdd-api/src/test/java/com/loiane/sdd/customer/CustomerRepositoryTest.java`
+  - `sdd-api/src/test/java/com/loiane/sdd/customer/CustomerRepositoryIT.java`
 - **Dependencies:** none
 - **Gates after green:** `spotless:check`, `checkstyle:check`, `compile`, `test` (Surefire — unit/slice), `verify` (Failsafe — IT), `jacoco:check`
 - **Rollback:** revert commit; drop `V1__create_customer_table.sql` and Flyway history entry if migration ran.
@@ -72,12 +72,12 @@ All 13 ACs covered. ✓
 - **Test-IDs:**
   - T-002-T1: `CustomerServiceImplTest` — unit test with Mockito — happy path: returns `CustomerResponse` with assigned `id`; duplicate email: `CustomerRepository.existsByEmail` returns `true` → `DuplicateEmailException` thrown.
 - **Files in scope:**
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerRequest.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerResponse.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/api/CustomerService.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerServiceImpl.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/DuplicateEmailException.java`
-  - `sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerServiceImplTest.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerRequest.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerResponse.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerService.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerServiceImpl.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/DuplicateEmailException.java`
+  - `sdd-api/src/test/java/com/loiane/sdd/customer/CustomerServiceImplTest.java`
 - **Dependencies:** T-001
 - **Gates after green:** `spotless:check`, `checkstyle:check`, `compile`, `test`, `jacoco:check`
 - **Rollback:** revert commit; T-001 artifacts remain.
@@ -98,15 +98,15 @@ All 13 ACs covered. ✓
   - T-003-T1: `CustomerControllerTest` — `@WebMvcTest(CustomerController.class)` — happy path (201 + body), validation failure (400 + `errors` array), duplicate email (409 + email field error), unexpected exception (500 + generic detail).
   - T-003-T2: `CustomerControllerIT` — `@SpringBootTest(webEnvironment=RANDOM_PORT)` + Failsafe — end-to-end: POST with valid body returns 201; POST with duplicate email returns 409.
 - **Files in scope:**
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerController.java`
-  - `sdd-api/src/main/java/com/loiane/sdd/customer/internal/CustomerExceptionHandler.java`
-  - `sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerControllerTest.java`
-  - `sdd-api/src/test/java/com/loiane/sdd/customer/internal/CustomerControllerIT.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerController.java`
+  - `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerExceptionHandler.java`
+  - `sdd-api/src/test/java/com/loiane/sdd/customer/CustomerControllerTest.java`
+  - `sdd-api/src/test/java/com/loiane/sdd/customer/CustomerControllerIT.java`
 - **Dependencies:** T-002
 - **Gates after green:** `spotless:check`, `checkstyle:check`, `compile`, `test`, `verify`, `jacoco:check`
 - **Rollback:** revert commit; T-001 and T-002 artifacts remain.
 - **Notes:**
-  - `CustomerController` is package-private (`class`, not `public class`) in accordance with the `internal` visibility rule from ADR-001.
+  - `CustomerController` is package-private (`class`, not `public class`).
   - `@PostMapping` returns `ResponseEntity<CustomerResponse>` with `HttpStatus.CREATED`.
   - `CustomerExceptionHandler` uses Spring's native `ProblemDetail` (`org.springframework.http.ProblemDetail`). Custom `errors` property added via `pd.setProperty("errors", errorList)`.
   - Handle `MethodArgumentNotValidException` → 400; `DuplicateEmailException` → 409; `DataIntegrityViolationException` (where message contains email constraint name) → 409 as concurrency fallback (ADR-002); bare `Exception` → 500.
@@ -121,14 +121,14 @@ All 13 ACs covered. ✓
 - **Test-IDs:**
   - T-004-T1: `CustomerService` unit test with `HttpClientTestingModule` — happy path: POST to `/api/customers` returns `CustomerResponse`; 400 response: observable errors with field list; 409 response: observable errors with email field; 500 response: observable errors with generic flag.
 - **Files in scope:**
-  - `sdd-ui/src/app/customer/customer.model.ts`
-  - `sdd-ui/src/app/customer/customer.service.ts`
-  - `sdd-ui/src/app/customer/customer.service.spec.ts`
+  - `sdd-ui/src/app/customer/customer.ts`
+  - `sdd-ui/src/app/customer/customer-service.ts`
+  - `sdd-ui/src/app/customer/customer-service.spec.ts`
 - **Dependencies:** T-003 (API contract must be agreed before service is coded)
 - **Gates after green:** `prettier --check`, `ng build`, `vitest run`
 - **Rollback:** revert commit.
 - **Notes:**
-  - `customer.model.ts` exports: `CustomerRequest`, `CustomerResponse`, `ApiFieldError`, `ApiProblem` interfaces.
+  - `customer.ts` exports: `CustomerRequest`, `CustomerResponse`, `ApiFieldError`, `ApiProblem` interfaces.
   - `CustomerService` is `@Injectable({ providedIn: 'root' })`. Method signature: `create(request: CustomerRequest): Observable<CustomerResponse>`.
   - Error responses are caught in the service via `catchError`; the service re-throws a typed error object (or a custom `CustomerApiError` class) so the component can distinguish 400/409/500 without parsing HTTP status again.
   - Use `HttpClient.post<CustomerResponse>('/api/customers', request, { observe: 'response' })` to get the status code if needed for the 201 check.
@@ -141,10 +141,10 @@ All 13 ACs covered. ✓
 - **Test-IDs:**
   - T-005-T1: `CustomerCreateComponent` unit tests — form renders with all five fields; submit button disabled when form invalid; required-field error appears after blur on blank First Name/Last Name/Email; format error on First Name with digit; format error on Email with invalid string; format error on Phone with `#`; error disappears when field value is corrected.
 - **Files in scope:**
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.ts`
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.html`
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.scss`
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.spec.ts`
+  - `sdd-ui/src/app/customer/customer-create/customer-create.ts`
+  - `sdd-ui/src/app/customer/customer-create/customer-create.html`
+  - `sdd-ui/src/app/customer/customer-create/customer-create.scss`
+  - `sdd-ui/src/app/customer/customer-create/customer-create.spec.ts`
   - `sdd-ui/src/app/customer/customer.routes.ts`
   - `sdd-ui/src/app/app.routes.ts`
 - **Dependencies:** T-004 (model types; service injected but stubbed in this task's tests)
@@ -155,7 +155,7 @@ All 13 ACs covered. ✓
   - Validators: `firstName`/`lastName` → `[Validators.required, Validators.maxLength(100), Validators.pattern(/^[\p{L}\-']+$/u)]`; `email` → `[Validators.required, Validators.maxLength(255), Validators.email]`; `phone` → `[Validators.maxLength(20), Validators.pattern(/^[0-9 +()\-]*$/)]`; `company` → `[Validators.maxLength(150)]`.
   - Submit button: `[disabled]="form.invalid"`.
   - Inline errors: use `*ngIf="control.hasError('required') && control.touched"` (or Angular 17+ `@if`).
-  - `customer.routes.ts` exports `customerRoutes: Routes = [{ path: 'new', component: CustomerCreateComponent }]`.
+  - `customer.routes.ts` exports `customerRoutes: Routes = [{ path: 'new', component: CustomerCreate }]`.
   - `app.routes.ts`: add `{ path: 'customers', loadChildren: () => import('./customer/customer.routes').then(m => m.customerRoutes) }`.
   - Styling: use Angular Material `MatFormFieldModule`, `MatInputModule`, `MatButtonModule`.
   - This task does NOT wire the HTTP call — the form's submit handler is a stub (`onSubmit(): void {}`); wired in T-006.
@@ -168,8 +168,8 @@ All 13 ACs covered. ✓
 - **Test-IDs:**
   - T-006-T1: `CustomerCreateComponent` integration tests with real `CustomerService` stub (spy or `jasmine.createSpyObj` / Vitest mock) — submit with valid data: `CustomerService.create` called once, snackbar opened, router navigated to `/customers`; 400 response: field-level errors appear on the correct form controls; 409 response: Email field shows "already in use" error; 500 response: generic snackbar shown, form values preserved.
 - **Files in scope:**
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.ts` (update — wire `onSubmit`)
-  - `sdd-ui/src/app/customer/customer-create/customer-create.component.spec.ts` (update — add HTTP integration tests)
+  - `sdd-ui/src/app/customer/customer-create/customer-create.ts` (update — wire `onSubmit`)
+  - `sdd-ui/src/app/customer/customer-create/customer-create.spec.ts` (update — add HTTP integration tests)
   - `sdd-ui/src/app/app.config.ts` (update — add `provideHttpClient()`, `provideAnimationsAsync()`)
 - **Dependencies:** T-005
 - **Gates after green:** `prettier --check`, `ng build`, `vitest run`
@@ -187,7 +187,7 @@ All 13 ACs covered. ✓
 
 ## Cross-cutting items (handled in Phase 5)
 
-- ArchUnit rule: `noClasses().that().resideInAPackage("..internal..").should().beAccessedByClassesOutside(...)` — enforces ADR-001 boundary.
+- ArchUnit rule: `slices().matching("com.loiane.sdd.(*)..").should().beFreeOfCycles()` — enforces no cross-feature cycles (ADR-001).
 - OpenAPI contract test: once SpringDoc is added, validate generated spec against the sketch in `03-design.md`.
 - Property-based tests: consider for `CustomerRequest` pattern validators (random string generation).
 
