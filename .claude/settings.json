@@ -15,7 +15,9 @@
       "Edit(/.claude/skills/requirements-traceability/**)",
       "Bash(mvn -q test-compile -pl sdd-api)",
       "Bash(mvn test-compile *)",
-      "Bash(mvn -q test-compile)"
+      "Bash(mvn -q test-compile)",
+      "Bash(mvn test *)",
+      "Bash(mvn -f /Users/loiane/Development/sdd-spring-angular-example/sdd-api/pom.xml test)"
     ],
     "deny": [
       "Bash(git commit *)",

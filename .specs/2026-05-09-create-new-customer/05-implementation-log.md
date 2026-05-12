@@ -162,3 +162,77 @@ sentences. All gates (Spotless, Checkstyle, JaCoCo ≥ 90%, Surefire, Failsafe) 
 **Test result:** 6/6 pass
 
 ---
+
+## T-002 — red
+
+**Phase:** red
+**Date:** 2026-05-12
+
+**Tests written (T-002-T1):**
+
+- `CustomerServiceImplTest` (`@ExtendWith(MockitoExtension.class)`)
+  - `[AC-008]` `createReturnsCustomerResponseWithId` — mocks repository, asserts CustomerResponse fields + assigned id (42L via reflection)
+  - `[AC-010, AC-011]` `createThrowsDuplicateEmailExceptionWhenEmailExists` — existsByEmail returns true → DuplicateEmailException; save never called
+
+**Red failure excerpt:**
+
+```text
+[ERROR] cannot find symbol: class CustomerRequest
+[ERROR] cannot find symbol: class CustomerResponse
+[ERROR] cannot find symbol: class CustomerServiceImpl
+[ERROR] cannot find symbol: class DuplicateEmailException
+```
+
+Test-compile failed — no production service classes existed yet.
+
+---
+
+## T-002 — green
+
+**Phase:** green
+**Date:** 2026-05-12
+
+**Files created:**
+
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerRequest.java`
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerResponse.java`
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerService.java`
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerServiceImpl.java`
+- `sdd-api/src/main/java/com/loiane/sdd/customer/DuplicateEmailException.java`
+
+**Infrastructure fixes required (outside files_in_scope but necessary):**
+
+1. Added `spring-boot-starter-validation` to `pom.xml` — `spring-boot-starter-webmvc` does not pull in `jakarta.validation` transitively in Spring Boot 4; `@NotBlank`, `@Size`, `@Email`, `@Pattern` need it explicitly.
+2. Added `sdd-api/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker` set to `mock-maker-subclass` — Mockito's inline mock maker generates JDK 25 class files (major version 70) that JaCoCo 0.8.13 cannot instrument; subclass mock maker avoids synthetic class generation.
+
+**Test result:** 7/7 Surefire pass (1 SddApplicationTests + 2 CustomerServiceImplTest + 4 CustomerRepositoryTest), no regressions.
+
+---
+
+## T-002 — refactor
+
+**Phase:** refactor
+**Date:** 2026-05-12
+
+**Changes:**
+
+- Removed `CustomerService` interface — single implementation, no need for an abstraction layer per user convention.
+- Merged logic into `CustomerService` (was `CustomerServiceImpl`); deleted `CustomerServiceImpl.java`.
+- Renamed test class `CustomerServiceImplTest` → `CustomerServiceTest`; file renamed accordingly.
+
+**Test result:** 7/7 pass.
+
+---
+
+## T-002 — simplify
+
+**Phase:** simplify
+**Date:** 2026-05-12
+
+**Changes:** none required.
+
+`toEntity` and `toResponse` private helpers are clean, flat, and readable. No ternary chains, no once-used helpers, no magic literals. All gates pass.
+
+**Test result:** 7/7 pass.
+
+---

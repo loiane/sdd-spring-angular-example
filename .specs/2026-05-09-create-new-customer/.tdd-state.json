@@ -16,7 +16,8 @@
       "depends_on": []
     },
     "T-002": {
-      "phase": "pending",
+      "phase": "done",
+      "red_failure_excerpt": "[ERROR] cannot find symbol: class CustomerRequest / CustomerResponse / CustomerServiceImpl / DuplicateEmailException — test-compile failed before production service classes existed",
       "acs_covered": ["AC-008", "AC-010", "AC-011", "AC-012"],
       "files_in_scope": [
         "sdd-api/src/main/java/com/loiane/sdd/customer/CustomerRequest.java",
