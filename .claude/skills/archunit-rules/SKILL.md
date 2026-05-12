@@ -13,10 +13,10 @@ authoritative_references:
 
 ## Default rule set (greenfield)
 
-These rules assume **package-by-feature with typed sub-packages**
-(see `spring-boot-4-conventions`): each top-level package under the application
-root is a feature/domain with an `api` (published) sub-package and private
-impl sub-packages (`internal/`, `model/`, `repository/`, `service/`).
+These rules assume **package-by-feature** (see `spring-boot-4-conventions`): each top-level package
+under the application root is a feature/domain. All classes live directly in
+`com.example.shop.<feature>`, with optional sub-packages (`repository`, `service`, `controller`,
+`dto`) added only when a feature grows large enough to warrant splitting.
 There are **no** top-level `controller` / `service` / `repository` packages.
 
 Place these in `src/test/java/.../arch/ArchitectureTest.java`:
@@ -25,28 +25,10 @@ Place these in `src/test/java/.../arch/ArchitectureTest.java`:
 @AnalyzeClasses(packages = "com.example.shop", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 
-    // Other features depend only on a feature's api package, never on its private impl packages.
+    // No cycles between top-level feature packages.
     @ArchTest
-    static final ArchRule internalIsPrivateToItsFeature =
-        slices().matching("com.example.shop.(*)..")
-                .should().notDependOnEachOther()
-                .ignoreDependency(
-                    JavaClass.Predicates.resideInAPackage("..internal.."),
-                    JavaClass.Predicates.resideInAPackage("..api.."));
-
-    // No class outside a feature may reach into its private sub-packages.
-    @ArchTest
-    static final ArchRule no_internal_access_across_features =
-        noClasses().that().resideOutsideOfPackages(
-                "..(*).internal..",
-                "..(*).model..",
-                "..(*).repository..",
-                "..(*).service..")
-               .should().dependOnClassesThat().resideInAnyPackage(
-                "..internal..",
-                "..model..",
-                "..repository..",
-                "..service..");
+    static final ArchRule no_cycles_between_features =
+        slices().matching("com.example.shop.(*)..").should().beFreeOfCycles();
 
     @ArchTest
     static final ArchRule no_field_injection =
@@ -63,23 +45,18 @@ class ArchitectureTest {
             "com.example.shop.dto..",
             "com.example.shop.util..");
 
-    // Entities must live in a feature's model or internal sub-package (never at root or in api).
+    // Entities must live within a feature package (not at the application root).
     @ArchTest
-    static final ArchRule entities_in_feature_private_package =
+    static final ArchRule entities_in_feature_package =
         classes().that().areAnnotatedWith("jakarta.persistence.Entity")
-                 .should().resideInAnyPackage("..internal..", "..model..");
-
-    @ArchTest
-    static final ArchRule no_cycles_between_features =
-        slices().matching("com.example.shop.(*)..").should().beFreeOfCycles();
+                 .should().resideInAPackage("com.example.shop.(*)..");
 }
 ```
 
-The `no_internal_access_across_features` and `no_cycles_between_features`
-rules together give you "module boundaries" without any extra runtime
-dependency: each feature is a top-level package, its private sub-packages
-(`internal`, `model`, `repository`, `service`) are inaccessible from other
-features, and cycles between features are forbidden.
+The `no_cycles_between_features` rule enforces module boundaries without any extra runtime
+dependency: each feature is a top-level package, and cycles between features are forbidden.
+Java package-private visibility (`class`, not `public class`) hides implementation details
+within a feature without requiring a separate `internal` sub-package.
 
 Run as part of the **architecture gate** (layer 4 of the harness).
 

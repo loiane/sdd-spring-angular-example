@@ -21,7 +21,7 @@
 ### 2. Architecture
 
 - [ ] Layers respected (controller → service → repository).
-- [ ] Module boundaries respected; no cross-module access bypassing the published API package (no `..internal..` imports across packages).
+- [ ] Module boundaries respected; no cross-feature package imports (ArchUnit cycle rule enforced).
 
 ### 3. Spring idioms
 

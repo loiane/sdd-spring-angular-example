@@ -29,21 +29,24 @@
 
 ## Spring Component Map
 
-> Components are grouped **by feature** (top-level package). Within each feature, classes live under `api` (published) or `internal` (private). Do not introduce top-level `controller`/`service`/`repository`/`model` packages.
+> Components are grouped **by feature** (top-level package). All classes live directly in `com.loiane.sdd.<feature>`. Optional sub-packages (`repository`, `service`, `controller`, `dto`) may be added when the feature grows large enough to warrant splitting. Do not introduce top-level `controller`/`service`/`repository`/`model` packages.
+>
+> Feature package root: `com.loiane.sdd.<feature>`
 
-| Feature | Visibility | Component | Responsibility |
-|---|---|---|---|
-| `<feature>` | api        | `<feature>.api.XService` (interface) | published surface |
-| `<feature>` | api        | `<feature>.api.XEvent`               | domain event |
-| `<feature>` | internal   | `<feature>.internal.XController`     | HTTP adapter |
-| `<feature>` | internal   | `<feature>.internal.XServiceImpl`    | business logic |
-| `<feature>` | internal   | `<feature>.internal.XRepository`     | persistence |
+| Feature | Component | Responsibility |
+|---|---|---|
+| `<feature>` | `<feature>.XService` (interface) | published service surface |
+| `<feature>` | `<feature>.XRequest`             | immutable record — validated input |
+| `<feature>` | `<feature>.XResponse`            | immutable record — returned output |
+| `<feature>` | `<feature>.XController`          | HTTP adapter |
+| `<feature>` | `<feature>.XServiceImpl`         | business logic |
+| `<feature>` | `<feature>.XRepository`          | persistence |
 
 ## Module Boundaries
 
-> Each top-level package is a module. List the modules this change touches and the directional dependencies between them. Boundaries are enforced by ArchUnit (see `archunit-rules` skill): `..internal..` packages are private, no cycles between top-level packages.
+> Each top-level package is a module. List the modules this change touches and the directional dependencies between them. Boundaries are enforced by ArchUnit (see `archunit-rules` skill): no cycles between top-level feature packages.
 
-- `<module>` — public API package: `<...api>`; depends on: `<other modules>`; published events: `<events>`
+- `<module>` — package: `com.loiane.sdd.<feature>`; depends on: `<other modules>`; published events: `<events>`
 
 ## Entity Relationship Model
 

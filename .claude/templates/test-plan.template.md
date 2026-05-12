@@ -26,7 +26,7 @@
 - No field injection (`@Autowired` on fields banned)
 - Entities live in `*.domain.model.*`
 - Controllers must end in `Controller`
-- No `..internal..` access across top-level packages; no cycles between top-level packages.
+- No cross-feature package access; no cycles between top-level feature packages.
 
 ### Contract (OpenAPI)
 
