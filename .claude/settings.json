@@ -17,7 +17,10 @@
       "Bash(mvn test-compile *)",
       "Bash(mvn -q test-compile)",
       "Bash(mvn test *)",
-      "Bash(mvn -f /Users/loiane/Development/sdd-spring-angular-example/sdd-api/pom.xml test)"
+      "Bash(mvn -f /Users/loiane/Development/sdd-spring-angular-example/sdd-api/pom.xml test)",
+      "Edit(/.claude/skills/spring-boot-4-conventions/**)",
+      "Edit(/.claude/skills/spring-code-review-rubric/**)",
+      "Edit(/.claude/skills/spring-task-decomposition/**)"
     ],
     "deny": [
       "Bash(git commit *)",

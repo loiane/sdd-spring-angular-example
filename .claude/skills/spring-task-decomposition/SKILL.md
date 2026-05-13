@@ -64,6 +64,7 @@ Order tasks so that dependencies flow inward:
 - A task whose `Files in scope` is `**/*` — hook will block edits.
 - Two tasks editing the same file in parallel — serialize them.
 - A task that says "refactor X" without an AC — refactors happen inside the refactor phase of `/build`, not as a standalone task.
+- Listing both `FooService.java` (interface) and `FooServiceImpl.java` in `Files in scope` when there is a single implementation — generate only `FooService.java` (the concrete `@Service` class). The test class is `FooServiceTest`, not `FooServiceImplTest`.
 
 ## Self-check
 
