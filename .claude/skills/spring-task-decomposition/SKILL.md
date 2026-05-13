@@ -65,6 +65,8 @@ Order tasks so that dependencies flow inward:
 - Two tasks editing the same file in parallel — serialize them.
 - A task that says "refactor X" without an AC — refactors happen inside the refactor phase of `/build`, not as a standalone task.
 - Listing both `FooService.java` (interface) and `FooServiceImpl.java` in `Files in scope` when there is a single implementation — generate only `FooService.java` (the concrete `@Service` class). The test class is `FooServiceTest`, not `FooServiceImplTest`.
+- Pre-creating typed sub-package paths (`service/`, `controller/`, `dto/`, etc.) in `Files in scope` when the feature is small — start flat; the refactor step of `/build` is the right time to extract sub-packages if the feature grows beyond ~6–8 classes.
+- Cross-feature `import` statements in `Files in scope` without a note — if a task needs a type from another feature's package, flag it in the task notes and prefer moving the shared type to `shared/` instead.
 
 ## Self-check
 

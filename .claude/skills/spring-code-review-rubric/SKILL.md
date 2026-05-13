@@ -30,10 +30,11 @@ authoritative_references:
 
 ### 2. Architecture
 
-- Module boundaries respected (no `internal` cross-imports).
+- Module boundaries respected — no imports from another feature's package (flag as `major`; move shared types to `shared/` or use events).
 - ArchUnit rules pass (see `archunit-rules`).
 - Layering correct (no controller→repository skip).
 - No new circular dependency.
+- Typed sub-packages (`service/`, `controller/`, `dto/`, `exception/`, `model/`, `enum/`, `repository/`) used only within a feature, never at the application root.
 
 ### 3. Spring idioms
 

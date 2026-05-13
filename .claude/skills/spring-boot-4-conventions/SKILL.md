@@ -20,79 +20,77 @@ authoritative_references:
 ### Package layout — by feature, not by layer
 
 Top-level packages are **bounded contexts / features**, not technical layers.
-Inside a feature, split by visibility (`api` published, private impl hidden).
-For the private impl sub-packages, apply the following rule:
 
-- **One class of a given type** (single entity, single service, etc.) — keep it directly in the feature package (no sub-package).
-- **Multiple classes of the same type** — use a typed sub-package within the feature:
-  - `model/` — JPA entities
-  - `repository/` — Spring Data repositories
-  - `service/` — service classes / implementations
-  - `service/` — service implementations
-- **Inside `api/`** — keep the controller (or service interface) at the `api/` level; put all request/response DTO records in an `api/dto/` sub-package.
+**Default: flat feature package.** All classes live directly in `com.example.<feature>` while the feature is small. Add typed sub-packages only when the feature package becomes crowded (rule of thumb: more than ~6–8 classes of mixed types, or when navigation becomes hard).
 
-All classes in the feature's private sub-packages (`model`, `repository`, `service`, `internal`) must be `public` (cross-package visibility is required when code spans multiple sub-packages). Cross-feature access is still forbidden and enforced by ArchUnit — `public` here means "visible within this feature", not "part of the published API".
+When the feature grows, extract into these typed sub-packages (add only the ones needed — do not pre-create empty ones):
 
-The `api/` sub-package is the **only** published surface. Other features depend only on `<feature>.api`.
+| Sub-package    | Contents |
+|----------------|----------|
+| `controller/`  | `@RestController`, `@RestControllerAdvice` |
+| `service/`     | `@Service` classes |
+| `repository/`  | Spring Data repositories |
+| `model/`       | JPA entities |
+| `dto/`         | Request/response records |
+| `exception/`   | Domain exceptions |
+| `enum/`        | Domain enumerations |
+
+All classes in typed sub-packages must be `public` (cross-package visibility is required within the feature). Cross-feature access is still forbidden and enforced by ArchUnit — `public` here means "visible within this feature", not "part of the application's public API".
 
 ```
-com.example.checkout
-├── giftcard/                    # feature/domain — one package per bounded context
-│   ├── api/                     # published surface: controller, service interfaces, events
-│   │   ├── GiftCardController.java
-│   │   ├── GiftCardRedemptionService.java
-│   │   ├── GiftCardRedeemed.java
-│   │   ├── dto/                 # request/response DTOs always in api/dto/
-│   │   │   ├── RedeemCommand.java
-│   │   │   └── GiftCardRedemptionResponse.java
-│   │   └── exception/           # domain exceptions thrown by this feature's services
-│   │       └── InsufficientBalanceException.java
-│   ├── model/                   # entities (multiple → typed sub-package)
-│   │   ├── GiftCardEntity.java
-│   │   └── GiftCardTransactionEntity.java
-│   ├── repository/              # repositories (multiple → typed sub-package)
-│   │   ├── GiftCardRepository.java
-│   │   └── GiftCardTransactionRepository.java
-│   └── service/                 # service implementations (multiple → typed sub-package)
-│       └── GiftCardRedemptionServiceImpl.java
-├── order/                       # another feature
-│   ├── api/
-│   │   └── dto/                 # DTOs always in api/dto/
-│   │       └── OrderSummaryResponse.java
-│   └── service/                 # single service impl — sub-package still used for consistency
-│       └── OrderService.java
-└── shared/                      # cross-cutting: error envelope, security config, time
-    └── exception/               # GlobalExceptionHandler (@RestControllerAdvice)
+# Small feature — flat (preferred while the package stays manageable)
+com.example.customer
+├── Customer.java                  # JPA entity
+├── CustomerRepository.java        # Spring Data repo
+├── CustomerRequest.java           # request record
+├── CustomerResponse.java          # response record
+├── CustomerService.java           # @Service
+├── CustomerController.java        # @RestController
+└── DuplicateEmailException.java
+
+# Grown feature — typed sub-packages extracted as needed
+com.example.order
+├── controller/
+│   ├── OrderController.java
+│   └── OrderExceptionHandler.java
+├── service/
+│   ├── OrderService.java
+│   └── OrderFulfillmentService.java
+├── repository/
+│   ├── OrderRepository.java
+│   └── OrderItemRepository.java
+├── model/
+│   ├── Order.java
+│   └── OrderItem.java
+├── dto/
+│   ├── CreateOrderRequest.java
+│   └── OrderResponse.java
+├── exception/
+│   ├── OrderNotFoundException.java
+│   └── InsufficientInventoryException.java
+└── enum/
+    └── OrderStatus.java
 ```
 
 Forbidden layouts (do **not** create these at the application root level):
 
 ```
-com.example.checkout
-├── controller/        ❌ by-layer at root
-├── service/           ❌ by-layer at root
-├── repository/        ❌ by-layer at root
-└── model/             ❌ by-layer at root
+com.example
+├── controller/    ❌ by-layer at root
+├── service/       ❌ by-layer at root
+├── repository/    ❌ by-layer at root
+└── model/         ❌ by-layer at root
 ```
 
-The forbidden layouts are **top-level** by-layer packages. Typed sub-packages
-(`model/`, `repository/`, `service/`) are allowed — and encouraged when there
-are multiple classes — **inside** a feature/domain package.
-
 Why:
-- Features change together; layers don't. By-feature keeps the diff for one
-  change inside one package.
-- Typed sub-packages within a feature improve navigation when a bounded context
-  grows beyond 4–5 private classes.
-- ArchUnit enforces that no other feature reaches into `model/`, `repository/`,
-  or `service/` sub-packages (see `archunit-rules`).
-- It maps 1:1 to the module boundaries enforced by `archunit-rules`.
+- Features change together; layers don't. By-feature keeps the diff for one change inside one package.
+- Typed sub-packages within a feature improve navigation as a bounded context grows beyond ~6–8 classes.
+- ArchUnit enforces that no other feature reaches into another feature's sub-packages (see `archunit-rules`).
 
 Cross-feature interaction:
-- Other features depend only on `<feature>.api`.
-- Prefer events (`ApplicationEventPublisher`) for fire-and-forget integration.
-- Direct dependencies between features are explicit and asserted by ArchUnit
-  (e.g. `order` may depend on `giftcard.api`, never the reverse).
+- **Avoid importing from another feature's package whenever possible.** If a type is needed by two features, move it to a `shared/` package (e.g. `com.example.shared`).
+- Prefer events (`ApplicationEventPublisher`) for fire-and-forget integration over direct calls between features.
+- When a direct dependency between features is unavoidable, it must be unidirectional and explicitly asserted by ArchUnit (e.g. `order` may depend on `customer`, never the reverse).
 
 ### Dependency injection
 

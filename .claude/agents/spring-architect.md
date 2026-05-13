@@ -35,7 +35,7 @@ Translate an approved `01-spec.md` into:
 5. **If Epic mode, draft Epic artifacts first** from `.claude/templates/epic-design.template.md` and `.claude/templates/epic-roadmap.template.md`.
 6. **Draft `03-design.md`** from `.claude/templates/design.template.md` (for a target slice in Epic mode, or full feature in non-Epic mode). Cover:
    - Architecture overview (component map)
-   - Module boundaries (top-level packages with `internal` sub-packages, enforced by ArchUnit rules)
+   - Module boundaries: default flat feature package; typed sub-packages (`service/`, `controller/`, `dto/`, `exception/`, `model/`, `enum/`, `repository/`) added only when the feature grows beyond ~6–8 classes. Cross-feature imports avoided — shared types go in `shared/`. Enforced by ArchUnit rules.
    - Entity/relationship model and persistence mapping
    - OpenAPI sketch for every new/changed endpoint
    - Data model + migration plan
