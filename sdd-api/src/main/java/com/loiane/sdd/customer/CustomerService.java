@@ -1,11 +1,8 @@
 package com.loiane.sdd.customer;
 
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 @Service
-@Validated
 class CustomerService {
 
   private final CustomerRepository repository;
@@ -14,7 +11,7 @@ class CustomerService {
     this.repository = repository;
   }
 
-  CustomerResponse create(@Valid CustomerRequest request) {
+  CustomerResponse create(CustomerRequest request) {
     if (repository.existsByEmail(request.email())) {
       throw new DuplicateEmailException(request.email());
     }
