@@ -20,7 +20,12 @@
       "Bash(mvn -f /Users/loiane/Development/sdd-spring-angular-example/sdd-api/pom.xml test)",
       "Edit(/.claude/skills/spring-boot-4-conventions/**)",
       "Edit(/.claude/skills/spring-code-review-rubric/**)",
-      "Edit(/.claude/skills/spring-task-decomposition/**)"
+      "Edit(/.claude/skills/spring-task-decomposition/**)",
+      "Bash(jar -tf ~/.m2/repository/org/springframework/boot/spring-boot-test/4.0.6/spring-boot-test-4.0.6.jar)",
+      "Bash(jar -tf ~/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/4.0.6/spring-boot-test-autoconfigure-4.0.6.jar)",
+      "Bash(xargs -I{} jar -tf {})",
+      "Bash(mvn dependency:tree -Dincludes=org.springframework.boot:spring-boot-test)",
+      "Bash(jar -tf ~/.m2/repository/org/springframework/boot/spring-boot-webmvc-test/4.0.6/spring-boot-webmvc-test-4.0.6.jar)"
     ],
     "deny": [
       "Bash(git commit *)",
