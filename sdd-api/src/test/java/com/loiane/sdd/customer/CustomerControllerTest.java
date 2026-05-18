@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -106,5 +107,27 @@ class CustomerControllerTest {
                     """))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.detail").exists());
+  }
+
+  @Test
+  @DisplayName(
+      "given DataIntegrityViolationException from service (race-condition duplicate email),"
+          + " when POST /api/customers,"
+          + " then 409 Conflict with email field error is returned")
+  void createReturns409ForDataIntegrityViolation() throws Exception {
+    when(customerService.create(any(CustomerRequest.class)))
+        .thenThrow(new DataIntegrityViolationException("uk_customer_email"));
+
+    mockMvc
+        .perform(
+            post("/api/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"firstName":"John","lastName":"Doe","email":"john@example.com"}
+                    """))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.errors").isArray())
+        .andExpect(jsonPath("$.errors[0].field").value("email"));
   }
 }
