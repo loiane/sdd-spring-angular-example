@@ -56,13 +56,11 @@ class CustomerServiceTest {
       "given email already in database, when create is called,"
           + " then DuplicateEmailException is thrown and save is never called")
   void createThrowsDuplicateEmailExceptionWhenEmailExists() {
-    CustomerRequest request =
-        new CustomerRequest("John", "Doe", "john@example.com", null, null);
+    CustomerRequest request = new CustomerRequest("John", "Doe", "john@example.com", null, null);
 
     when(repository.existsByEmail("john@example.com")).thenReturn(true);
 
-    assertThatThrownBy(() -> service.create(request))
-        .isInstanceOf(DuplicateEmailException.class);
+    assertThatThrownBy(() -> service.create(request)).isInstanceOf(DuplicateEmailException.class);
 
     verify(repository, never()).save(any(Customer.class));
   }

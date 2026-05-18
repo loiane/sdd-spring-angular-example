@@ -31,7 +31,10 @@ class CustomerRepositoryTest {
   }
 
   @Test
-  @DisplayName("given customer with all optional fields, when saved and reloaded, then all field values are preserved")
+  @DisplayName(
+      "given customer with all optional fields,"
+          + " when saved and reloaded,"
+          + " then all field values are preserved")
   void saveCustomerWithAllFieldsAndReadBack() {
     Customer customer = new Customer();
     customer.setFirstName("Jane");
@@ -56,7 +59,10 @@ class CustomerRepositoryTest {
   }
 
   @Test
-  @DisplayName("given duplicate email, when second customer is saved, then DataIntegrityViolationException is thrown")
+  @DisplayName(
+      "given duplicate email,"
+          + " when second customer is saved,"
+          + " then DataIntegrityViolationException is thrown")
   void duplicateEmailThrowsDataIntegrityViolation() {
     Customer first = new Customer();
     first.setFirstName("Alice");

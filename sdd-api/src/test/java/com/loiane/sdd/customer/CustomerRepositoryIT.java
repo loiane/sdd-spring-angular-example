@@ -19,7 +19,10 @@ class CustomerRepositoryIT {
   @Autowired private DataSource dataSource;
 
   @Test
-  @DisplayName("given a running database, when the schema is inspected, then the customer table has all expected columns")
+  @DisplayName(
+      "given a running database,"
+          + " when the schema is inspected,"
+          + " then the customer table has all expected columns")
   void customerTableExistsWithAllColumns() throws Exception {
     try (Connection conn = dataSource.getConnection()) {
       DatabaseMetaData meta = conn.getMetaData();
@@ -35,13 +38,15 @@ class CustomerRepositoryIT {
   }
 
   @Test
-  @DisplayName("given a running database, when unique indexes are inspected, then uk_customer_email constraint is present")
+  @DisplayName(
+      "given a running database,"
+          + " when unique indexes are inspected,"
+          + " then uk_customer_email constraint is present")
   void customerEmailColumnHasUniqueConstraint() throws Exception {
     try (Connection conn = dataSource.getConnection()) {
       DatabaseMetaData meta = conn.getMetaData();
       List<String> indexNames = new ArrayList<>();
-      try (ResultSet rs =
-          meta.getIndexInfo(conn.getCatalog(), null, "customer", true, false)) {
+      try (ResultSet rs = meta.getIndexInfo(conn.getCatalog(), null, "customer", true, false)) {
         while (rs.next()) {
           String indexName = rs.getString("INDEX_NAME");
           if (indexName != null) {
