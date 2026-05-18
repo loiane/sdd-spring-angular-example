@@ -30,7 +30,8 @@
       "depends_on": ["T-001"]
     },
     "T-003": {
-      "phase": "pending",
+      "phase": "done",
+      "red_failure_excerpt": "[ERROR] cannot find symbol: class CustomerController — test-compile failed before production controller existed",
       "acs_covered": ["AC-008", "AC-010", "AC-011", "AC-012", "AC-013"],
       "files_in_scope": [
         "sdd-api/src/main/java/com/loiane/sdd/customer/CustomerController.java",

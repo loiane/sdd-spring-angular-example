@@ -236,3 +236,88 @@ Test-compile failed — no production service classes existed yet.
 **Test result:** 7/7 pass.
 
 ---
+
+## T-003 — red
+
+**Phase:** red
+**Date:** 2026-05-12
+
+**Tests written (T-003-T1, T-003-T2):**
+
+- `CustomerControllerTest` (`@WebMvcTest(CustomerController.class)`, `@MockitoBean CustomerService`)
+  - `[AC-008]` `createCustomer_validRequest_returns201WithBody` — mocked service returns response; expects 201 + id, firstName, email in JSON body
+  - `[AC-010, AC-012]` `createCustomer_blankFirstName_returns400WithErrors` — blank firstName triggers Bean Validation; expects 400 + `errors` array with field + message
+  - `[AC-011]` `createCustomer_duplicateEmail_returns409WithEmailError` — service throws `DuplicateEmailException`; expects 409 + `errors[0].field == "email"`
+  - `[AC-013]` `createCustomer_unexpectedException_returns500WithDetail` — service throws `RuntimeException`; expects 500 + `detail` present
+- `CustomerControllerIT` (`@SpringBootTest(webEnvironment=RANDOM_PORT)`, Failsafe)
+  - `[AC-008]` `createCustomer_validRequest_returns201WithId` — POST valid body end-to-end; expects 201 + positive id
+  - `[AC-011]` `createCustomer_duplicateEmail_returns409` — POST same email twice; second call expects 409
+
+**Discovery:** Spring Boot 4 relocated `TestRestTemplate` from `org.springframework.boot.test.web.client` to `org.springframework.boot.resttestclient` (module `spring-boot-resttestclient`). `@WebMvcTest` relocated to `org.springframework.boot.webmvc.test.autoconfigure`.
+
+**Red failure excerpt:**
+
+```text
+[ERROR] cannot find symbol: class CustomerController
+[ERROR] /CustomerControllerTest.java:[17,13] cannot find symbol
+```
+
+Test-compile failed — no production controller class existed yet.
+
+---
+
+## T-003 — green
+
+**Phase:** green
+**Date:** 2026-05-12
+
+**Files created:**
+
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerController.java`
+- `sdd-api/src/main/java/com/loiane/sdd/customer/CustomerExceptionHandler.java`
+
+**Key decisions:**
+
+- `CustomerController` is package-private (`class`, not `public class`) per design spec.
+- `@Valid @RequestBody` on the controller triggers Bean Validation before the service is called.
+- `CustomerExceptionHandler` uses Spring's native `ProblemDetail` with `setProperty("errors", ...)` to attach the field error list.
+- `DataIntegrityViolationException` → 409 is the concurrency fallback (ADR-002) alongside the proactive `DuplicateEmailException` → 409.
+- `Exception` catch-all → 500 with a generic detail string (no internal detail leaked).
+- `CustomerControllerIT` uses a plain `RestTemplate` with a no-throw `DefaultResponseErrorHandler` + `@LocalServerPort` — avoids `@AutoConfigureTestRestTemplate` which is broken under Java 25 (`@ConditionalOnMissingBean` type-deduction failure in `spring-boot-resttestclient` 4.0.6).
+
+**Infrastructure fixes:**
+
+- Pre-existing Checkstyle `LineLength` violations in `CustomerRepositoryTest` and `CustomerRepositoryIT` (both outside T-003 scope but blocking `mvn verify`) fixed by wrapping `@DisplayName` strings with `+` concatenation.
+
+**Test result:** 11 Surefire + 4 Failsafe = 15 tests passing, 0 Checkstyle violations, JaCoCo ≥ 90%, BUILD SUCCESS.
+
+---
+
+## T-003 — refactor
+
+**Phase:** refactor
+**Date:** 2026-05-12
+
+**Changes:**
+
+- `CustomerExceptionHandler`: extracted `duplicateEmailConflict()` private helper — both `handleDuplicateEmail` and `handleDataIntegrity` had identical bodies; the helper eliminates the duplication without changing behavior.
+- `CustomerController` and test classes: no structural changes required; they were already clean from GREEN.
+
+**Test result:** 11 Surefire + 4 Failsafe = 15 tests passing, BUILD SUCCESS.
+
+---
+
+## T-003 — simplify
+
+**Phase:** simplify
+**Date:** 2026-05-12
+
+**Changes:**
+
+- `CustomerControllerIT`: replaced FQN references `org.springframework.http.client.ClientHttpResponse` and `java.io.IOException` inside the anonymous `DefaultResponseErrorHandler` with proper imports and simple names.
+- `CustomerControllerIT`: simplified `new RestTemplate(new SimpleClientHttpRequestFactory())` to `new RestTemplate()` — the no-arg constructor already uses `SimpleClientHttpRequestFactory` by default.
+- No changes to `CustomerController`, `CustomerExceptionHandler`, or `CustomerControllerTest` — all were already clear from REFACTOR.
+
+**Test result:** 11 Surefire + 4 Failsafe = 15 tests passing, 0 Checkstyle violations, JaCoCo ≥ 90%, BUILD SUCCESS.
+
+---
