@@ -367,3 +367,44 @@ Test-compile failed — no production controller class existed yet.
 **Test result:** 15/15 tests passing; `ng build` and `prettier --check` both clean.
 
 ---
+
+### T-006 — red
+
+**Failure excerpt:**
+```
+AssertionError: expected "vi.fn()" to be called with arguments
+Number of calls: 0
+```
+`onSubmit()` was a no-op stub; `CustomerService`, `Router`, and `MatSnackBar` were not injected.
+
+**Tests written:** Added `CustomerCreate — HTTP integration` describe block to `customer-create.spec.ts` — 5 tests covering AC-008 (service called once), AC-009 (success snackbar + navigate), AC-010/AC-012 (400 field errors mapped to form controls), AC-011 (409 mapped to email field), AC-013 (500 generic snackbar, form preserved, no navigate).
+
+---
+
+### T-006 — green
+
+**Production code written:**
+- `customer-create.ts` — injected `CustomerService`, `Router`, `MatSnackBar` via `inject()`; wired `onSubmit()` to subscribe to `customerService.create()`, calling `onSuccess()` or `onError()` handlers.
+- `app.config.ts` — added `provideHttpClient()` and `provideAnimationsAsync()`.
+
+**Test result:** 20/20 tests passing (3 test files); `ng build` succeeds.
+
+---
+
+### T-006 — refactor
+
+**Changes:**
+- Extracted `onSuccess()` and `onError()` as private methods — `onSubmit()` now reads at a single level of abstraction. `onError()` uses an early-return guard for `isServerError` before iterating field errors.
+
+**Test result:** 20/20 tests passing.
+
+---
+
+### T-006 — simplify
+
+**Changes:**
+- Applied `prettier --write` to `customer-create.ts` and `customer-create.spec.ts` — collapsed subscribe object onto fewer lines, normalised import grouping. No logic changed.
+
+**Test result:** 20/20 tests passing; `ng build` and `prettier --check` clean.
+
+---

@@ -67,7 +67,8 @@
       "depends_on": ["T-004"]
     },
     "T-006": {
-      "phase": "pending",
+      "phase": "done",
+      "red_failure_excerpt": "AssertionError: expected \"vi.fn()\" to be called with arguments — onSubmit() is a stub; CustomerService/Router/MatSnackBar not yet injected",
       "acs_covered": ["AC-008", "AC-009", "AC-010", "AC-011", "AC-012", "AC-013"],
       "files_in_scope": [
         "sdd-ui/src/app/customer/customer-create/customer-create.ts",
