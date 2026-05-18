@@ -1,0 +1,63 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-form-field>
+    <mat-label>First Name</mat-label>
+    <input matInput formControlName="firstName" data-testid="firstName" />
+    @if (firstName.hasError('required') && firstName.touched) {
+      <mat-error data-testid="firstNameRequired">This field is required</mat-error>
+    }
+    @if (firstName.hasError('pattern') && firstName.touched) {
+      <mat-error data-testid="firstNamePattern"
+        >Only letters, hyphens, and apostrophes are allowed</mat-error
+      >
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Last Name</mat-label>
+    <input matInput formControlName="lastName" data-testid="lastName" />
+    @if (lastName.hasError('required') && lastName.touched) {
+      <mat-error data-testid="lastNameRequired">This field is required</mat-error>
+    }
+    @if (lastName.hasError('pattern') && lastName.touched) {
+      <mat-error data-testid="lastNamePattern"
+        >Only letters, hyphens, and apostrophes are allowed</mat-error
+      >
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" type="email" data-testid="email" />
+    @if (email.hasError('required') && email.touched) {
+      <mat-error data-testid="emailRequired">This field is required</mat-error>
+    }
+    @if (email.hasError('email') && email.touched) {
+      <mat-error data-testid="emailFormat">Please enter a valid email address</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Phone</mat-label>
+    <input matInput formControlName="phone" data-testid="phone" />
+    @if (phone.hasError('pattern') && phone.touched) {
+      <mat-error data-testid="phonePattern"
+        >Only digits, spaces, +, (), and - are allowed</mat-error
+      >
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Company</mat-label>
+    <input matInput formControlName="company" data-testid="company" />
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    [disabled]="form.invalid"
+    data-testid="submitBtn"
+  >
+    Save
+  </button>
+</form>

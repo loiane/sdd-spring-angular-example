@@ -321,3 +321,49 @@ Test-compile failed — no production controller class existed yet.
 **Test result:** 11 Surefire + 4 Failsafe = 15 tests passing, 0 Checkstyle violations, JaCoCo ≥ 90%, BUILD SUCCESS.
 
 ---
+
+### T-005 — red
+
+**Failure excerpt:**
+```
+✘ [ERROR] Could not resolve "./customer-create"
+✘ [ERROR] TS2307: Cannot find module './customer-create' or its corresponding type declarations.
+```
+
+**Test written:** `customer-create.spec.ts` — 9 tests covering AC-001 through AC-007 (form fields present, submit disabled when invalid, required/pattern/email/phone inline errors, error clears on correction).
+
+**Root cause:** `CustomerCreate` component did not exist yet.
+
+---
+
+### T-005 — green
+
+**Production code written:**
+- `customer-create.ts` — `CustomerCreate` standalone component with `ReactiveFormsModule`; `FormGroup` with five typed `FormControl`s; `NAME_PATTERN` and `PHONE_PATTERN` constants; stub `onSubmit()`.
+- `customer-create.html` — Angular Material form with `@if` control-flow blocks keyed on `data-testid` attributes for test targeting.
+- `customer-create.scss` — flex column layout, max-width 480px.
+- `customer.routes.ts` — exports `customerRoutes: Routes = [{ path: 'new', component: CustomerCreate }]`.
+- `app.routes.ts` — added lazy `{ path: 'customers', loadChildren: ... }` route.
+- Installed `@angular/animations@^21.2.13` (required by `NoopAnimationsModule` / Angular Material).
+
+**Test result:** 15/15 tests passing (3 test files); `ng build` succeeds with `customer-routes` as a lazy chunk.
+
+---
+
+### T-005 — refactor
+
+**Changes:**
+- Added typed getters `firstName`, `lastName`, `email`, `phone` to `CustomerCreate` class, backed by `this.form.controls.<field>`. Template now references the getter (`firstName.hasError(...)`) instead of `form.get('firstName')!` everywhere — eliminates non-null assertions and the repeated `form.get()` calls.
+
+**Test result:** 15/15 tests passing.
+
+---
+
+### T-005 — simplify
+
+**Changes:**
+- Applied `prettier --write` to `customer-create.ts`, `customer-create.html`, `customer.routes.ts`, `app.routes.ts` — aligned formatting with project style (inline imports collapsed, HTML tag-close formatting). No logic changed.
+
+**Test result:** 15/15 tests passing; `ng build` and `prettier --check` both clean.
+
+---
