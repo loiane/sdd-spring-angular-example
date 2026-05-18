@@ -1,18 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  provideHttpClientTesting,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
 
 import { CustomerService } from './customer-service';
-import {
-  CustomerRequest,
-  CustomerResponse,
-  CustomerApiError,
-  ApiFieldError,
-} from './customer';
+import { CustomerRequest, CustomerResponse, CustomerApiError, ApiFieldError } from './customer';
 
 const CUSTOMERS_URL = '/api/customers';
 
@@ -49,11 +41,7 @@ describe('CustomerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        CustomerService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [CustomerService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(CustomerService);
@@ -81,10 +69,7 @@ describe('CustomerService', () => {
       const resultPromise = firstValueFrom(service.create(VALID_REQUEST));
 
       const req = httpMock.expectOne(CUSTOMERS_URL);
-      req.flush(
-        { errors: FIELD_ERRORS_400 },
-        { status: 400, statusText: 'Bad Request' },
-      );
+      req.flush({ errors: FIELD_ERRORS_400 }, { status: 400, statusText: 'Bad Request' });
 
       let thrownError: CustomerApiError | undefined;
       try {
@@ -103,10 +88,7 @@ describe('CustomerService', () => {
       const resultPromise = firstValueFrom(service.create(VALID_REQUEST));
 
       const req = httpMock.expectOne(CUSTOMERS_URL);
-      req.flush(
-        { errors: [EMAIL_CONFLICT_ERROR] },
-        { status: 409, statusText: 'Conflict' },
-      );
+      req.flush({ errors: [EMAIL_CONFLICT_ERROR] }, { status: 409, statusText: 'Conflict' });
 
       let thrownError: CustomerApiError | undefined;
       try {

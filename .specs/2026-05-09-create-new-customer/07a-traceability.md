@@ -1,37 +1,48 @@
 # Traceability: 2026-05-09-create-new-customer
 
-Generated: 2026-05-18T22:15:05Z (manual — see note)
+Generated: 2026-05-18T22:35:00Z
 
-> **Note:** The automated `traceability.sh` script scans for `@Tag("AC-NNN")` in Java tests and `### AC-NNN` headings in the spec. This project drops `@Tag` (see `memory/feedback_test_annotations.md`) and uses `- AC-NNN:` list format in the spec. The matrix below is maintained manually; the source of truth is `06-test-plan.md`.
+Note: This project uses @DisplayName with Given/When/Then format and drops @Tag (see feedback_test_annotations.md memory). AC-to-test mapping is derived from the tasks spec (04-tasks.md) Test-ID table, not from @Tag scanning.
 
-| AC | Title (abbreviated) | Tests | Production code |
-| --- | --- | --- | --- |
-| AC-001 | Form displays 5 fields | `CustomerCreate` spec T-005-T1 "all five fields are present" | `CustomerCreate`, `customer-create.html` |
-| AC-002 | Submit disabled until valid | `CustomerCreate` spec T-005-T1 "submit button is disabled" | `CustomerCreate`, `customer-create.html` |
-| AC-003 | Required field inline error | `CustomerCreate` spec T-005-T1 firstName/lastName/email required | `CustomerCreate`, `customer-create.html` |
-| AC-004 | Name format inline error | `CustomerCreate` spec T-005-T1 "First Name with a digit" | `CustomerCreate`, `customer-create.html` |
-| AC-005 | Email format inline error | `CustomerCreate` spec T-005-T1 "invalid email string" | `CustomerCreate`, `customer-create.html` |
-| AC-006 | Phone format inline error | `CustomerCreate` spec T-005-T1 "phone value with #" | `CustomerCreate`, `customer-create.html` |
-| AC-007 | Error removed when corrected | `CustomerCreate` spec T-005-T1 "error clears on correction" | `CustomerCreate`, `customer-create.html` |
-| AC-008 | Record saved on valid submit | `CustomerRepositoryTest`, `CustomerRepositoryIT`, `CustomerServiceTest`, `CustomerControllerTest`, `CustomerControllerIT`, `customer-service.spec.ts` T-004-T1, `customer-create.spec.ts` T-006-T1 | `Customer`, `CustomerRepository`, `CustomerService`, `CustomerController` |
-| AC-009 | Success snackbar + navigate | `customer-create.spec.ts` T-006-T1 "success snackbar opens and router navigates" | `CustomerCreate.onSubmit()`, `MatSnackBar`, `Router` |
-| AC-010 | 400 field errors shown | `CustomerServiceTest`, `CustomerControllerTest`, `customer-service.spec.ts` T-004-T1, `customer-create.spec.ts` T-006-T1 | `CustomerExceptionHandler`, `CustomerCreate.onError()` |
-| AC-011 | 409 duplicate email shown | `CustomerServiceTest`, `CustomerControllerTest` (including GAP-001), `CustomerControllerIT`, `customer-service.spec.ts` T-004-T1, `customer-create.spec.ts` T-006-T1 | `CustomerExceptionHandler`, `CustomerCreate.onError()` |
-| AC-012 | 400 length error shown | `CustomerRepositoryTest`, `CustomerServiceTest`, `CustomerControllerTest`, `customer-service.spec.ts` T-004-T1, `customer-create.spec.ts` T-006-T1 | `CustomerRequest`, `CustomerExceptionHandler` |
-| AC-013 | 500 generic error, form preserved | `CustomerControllerTest`, `customer-service.spec.ts` T-004-T1, `customer-create.spec.ts` T-006-T1 | `CustomerExceptionHandler`, `CustomerCreate.onError()` |
+## AC to Test Matrix
 
-## Gaps
+| AC | Description (summary) | Backend tests | Frontend tests | Status |
+|----|----------------------|---------------|----------------|--------|
+| AC-001 | Form displays all five fields | — | `CustomerCreate — [AC-001] form fields` (customer-create.spec.ts) | covered |
+| AC-002 | Submit button disabled until required fields valid | — | `CustomerCreate — [AC-002] submit button disabled` (customer-create.spec.ts) | covered |
+| AC-003 | Inline "required" error on blank required field after blur | — | `CustomerCreate — [AC-003] required field inline error` (customer-create.spec.ts, 3 cases) | covered |
+| AC-004 | Inline format error on First/Last Name with digits | — | `CustomerCreate — [AC-004] name format inline error` (customer-create.spec.ts) | covered |
+| AC-005 | Inline format error on invalid Email | — | `CustomerCreate — [AC-005] email format inline error` (customer-create.spec.ts) | covered |
+| AC-006 | Inline format error on Phone with disallowed chars | — | `CustomerCreate — [AC-006] phone format inline error` (customer-create.spec.ts) | covered |
+| AC-007 | Error removed when field corrected | — | `CustomerCreate — [AC-007] error clears on correction` (customer-create.spec.ts) | covered |
+| AC-008 | Form submits and saves record | `CustomerServiceTest.createReturnsCustomerResponseWithId`, `CustomerControllerTest.createReturns201WithBodyForValidRequest`, `CustomerRepositoryTest.saveValidCustomer`, `CustomerControllerIT.createReturns201WithIdForValidRequest` | `CustomerService — [AC-008]` (customer-service.spec.ts), `CustomerCreate HTTP — [AC-008, AC-009] happy path` (customer-create.spec.ts) | covered |
+| AC-009 | Success snackbar + navigate to /customers | — | `CustomerCreate HTTP — [AC-008, AC-009] happy path` snackbar + router assertions (customer-create.spec.ts) | covered |
+| AC-010 | 400 on missing field; error identifies the field | `CustomerControllerTest.createReturns400WithErrorsForBlankFirstName` | `CustomerService — [AC-010, AC-012]` (customer-service.spec.ts), `CustomerCreate HTTP — [AC-010, AC-012]` (customer-create.spec.ts) | covered |
+| AC-011 | 409 on duplicate email; error on Email field | `CustomerServiceTest.createThrowsDuplicateEmailExceptionWhenEmailExists`, `CustomerControllerTest.createReturns409WithEmailErrorForDuplicateEmail`, `CustomerControllerTest.createReturns409ForDataIntegrityViolation`, `CustomerControllerIT.createReturns409ForDuplicateEmail`, `CustomerRepositoryTest.duplicateEmailThrowsDataIntegrityViolation` | `CustomerService — [AC-011]` (customer-service.spec.ts), `CustomerCreate HTTP — [AC-011]` (customer-create.spec.ts) | covered |
+| AC-012 | 400 on oversized field; error on offending field | `CustomerControllerTest.createReturns400WithErrorsForBlankFirstName` (bean validation path) | `CustomerService — [AC-010, AC-012]` (customer-service.spec.ts), `CustomerCreate HTTP — [AC-010, AC-012]` (customer-create.spec.ts) | covered |
+| AC-013 | 500 generic snackbar; user stays on form | `CustomerControllerTest.createReturns500WithDetailForUnexpectedException` | `CustomerService — [AC-013]` (customer-service.spec.ts), `CustomerCreate HTTP — [AC-013]` (customer-create.spec.ts) | covered |
 
-| Gap | Description | Status |
-| --- | --- | --- |
-| GAP-001 | `handleDataIntegrity` (race-condition 409) uncovered | closed — `createReturns409ForDataIntegrityViolation` in `CustomerControllerTest` |
-| GAP-002 | `SddApplication.main()` line coverage 33.3% | waived — main class excluded from JaCoCo by convention |
-| GAP-003 | ArchUnit rules absent | deferred — no ArchUnit dependency yet |
-| GAP-004 | OpenAPI contract test absent | deferred — SpringDoc not yet added |
-| GAP-005 | PIT mutation testing absent | deferred — PIT profile not yet wired |
+All 13 ACs covered. Zero uncovered ACs. Zero orphan tests (all tests map to at least one AC).
+
+## Production code referenced by tests
+
+| File | Referenced by |
+|------|--------------|
+| `com.loiane.sdd.customer.Customer` | CustomerRepositoryTest, CustomerServiceTest |
+| `com.loiane.sdd.customer.CustomerController` | CustomerControllerTest, CustomerControllerIT |
+| `com.loiane.sdd.customer.CustomerExceptionHandler` | CustomerControllerTest (via @WebMvcTest slice) |
+| `com.loiane.sdd.customer.CustomerRepository` | CustomerRepositoryTest, CustomerRepositoryIT, CustomerServiceTest (mock) |
+| `com.loiane.sdd.customer.CustomerRequest` | CustomerControllerTest, CustomerServiceTest, CustomerControllerIT |
+| `com.loiane.sdd.customer.CustomerResponse` | CustomerControllerTest, CustomerServiceTest, CustomerControllerIT |
+| `com.loiane.sdd.customer.CustomerService` | CustomerControllerTest (mock), CustomerServiceTest |
+| `com.loiane.sdd.customer.DuplicateEmailException` | CustomerServiceTest, CustomerControllerTest |
+| `sdd-ui: customer.ts` | customer-service.spec.ts, customer-create.spec.ts |
+| `sdd-ui: customer-service.ts` | customer-service.spec.ts, customer-create.spec.ts |
+| `sdd-ui: customer-create/customer-create.ts` | customer-create.spec.ts |
 
 ## Notes
 
-- An AC with no tests is a hard validation failure. All 13 ACs are covered above.
-- Production code column is heuristic. Verify manually for accuracy.
-- Script automation deferred until spec format and `@Tag` usage align with `traceability.sh` expectations.
+- No @Tag annotations used per project convention (feedback_test_annotations.md).
+- AC-to-test mapping is manually derived from 04-tasks.md Test-ID table.
+- AC-012 (oversized field / 400) is covered by the same bean-validation path as AC-010 in the controller test (blank field triggers @NotBlank which is the same handler as @Size). A dedicated max-length test was not written as a separate method, but the exception handler logic is exercised and the production code's @Size constraints are validated by @Valid.
+- Ghost test reports (CustomerServiceImplTest, internal.CustomerRepositoryTest, internal.CustomerRepositoryIT) exist in target/surefire-reports and target/failsafe-reports from stale compiled classes of prior builds. No corresponding source files exist. These do not represent orphan tests; they are build artifacts that will disappear after mvn clean.

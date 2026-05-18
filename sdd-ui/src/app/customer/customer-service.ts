@@ -3,12 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import {
-  CustomerRequest,
-  CustomerResponse,
-  CustomerApiError,
-  ApiProblem,
-} from './customer';
+import { CustomerRequest, CustomerResponse, CustomerApiError, ApiProblem } from './customer';
 
 const CUSTOMERS_URL = '/api/customers';
 
@@ -32,13 +27,9 @@ export class CustomerService {
   private readonly http = inject(HttpClient);
 
   create(request: CustomerRequest): Observable<CustomerResponse> {
-    return this.http
-      .post<CustomerResponse>(CUSTOMERS_URL, request, { observe: 'response' })
-      .pipe(
-        map((response) => response.body as CustomerResponse),
-        catchError((error: HttpErrorResponse) =>
-          throwError(() => toApiError(error)),
-        ),
-      );
+    return this.http.post<CustomerResponse>(CUSTOMERS_URL, request, { observe: 'response' }).pipe(
+      map((response) => response.body as CustomerResponse),
+      catchError((error: HttpErrorResponse) => throwError(() => toApiError(error))),
+    );
   }
 }
